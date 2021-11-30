@@ -1,0 +1,16 @@
+{
+  "name": "servidor-backend-ti0120",
+  "version": "1.0.0",
+  "description": "Servidor de aplicação para gerenciamento dos clientes",
+  "main": "index.js",
+  "scripts": {
+   "start": "nodemon"
+  },
+  "keywords": [
+    "servidor",
+    "backend",
+    "nodejs..."
+  ],
+  "author": "Gustavo Borges",
+  "license": "ISC"
+}
