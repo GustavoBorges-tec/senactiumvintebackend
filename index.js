@@ -13,6 +13,7 @@ const jwt = require("jsonwebtoken");
 //para criptografar as senhas será utilizado o bcrypt
 //vamos importas o módulo
 const bcrypt = require("bcrypt");
+const { json } = require("express");
 
 //Criando uma instância do servidro para carregá-lo
 //faremos isso usando a constante app
@@ -107,11 +108,13 @@ app.post("/api/cliente/login",(req,res)=>{
             if(!igual){
                 return res.status(400).send({output:`Sua senha está incorreta`});
             }
-            res.status(200).send({output:`Logado`,payload:result});
+            const toke = criarToken(result[0].idcliente,result[0].usuario,result[0].email);
+
+            res.status(200).send({output:`Logado`,payload:result,token:token});
         });
     });
 });
-app.put("/api/cliente/atualizar/:id",(req,res)=>{
+app.put("/api/cliente/atualizar/:id", verificar,(req,res)=>{
     con.query("Update tbcliente set ? where idcliente=?",[req.body,req.params.id],(erro,result)=>{
         if(erro){
             return res.status(400).send({output:`Erro ao tentar atualizar -> ${erro}`});
@@ -128,5 +131,28 @@ app.delete("/api/cliente/apagar:id",(req,res)=>{
         res.status(204).send({});
     });
 });
+
+
+function verificar(req,res,next){
+
+    const token_enviado = req.headers.token;
+
+    if(!token_enviado){
+        return res.status(401).send({output:`Token não existe. 
+        Você não tem autorização para acessar esta página`})
+    }
+    jwt.verify(token_enviado,"senac",(erro,rs)=>{
+        if(erro){
+            return res.status(503).send({output:`Erro no processo de 
+            verificação do token->${erro}`})
+        }
+        return next();
+    })
+
+}
+
+function criarToken(id,usuario,email){
+    return jwt.sign({id:id,usuario:usuario,email:email},"senac",{expiresIn:'2d'})
+}
 
 app.listen(3000,()=>console.log(`Servidor online em http://localhost:3000`));
